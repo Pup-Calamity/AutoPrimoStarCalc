@@ -473,6 +473,14 @@
       output.push(["Skills", sumSkill, sumSkill * 7, Math.floor((sumSkill * 7) / 27)]);
       output.push(["Fantomon", sumFantom, sumFantom * 8, Math.floor((sumFantom * 8) / 27)]);
       output.push(["Guaranteed", "-", "-", 45]);
+      let totalPoints = (startChar * 100) + (sumGear * 18) + (sumRelic * 33) + (sumSkill * 7) + (sumFantom * 8);
+      let totalPrimos = Math.floor((startChar * 100) / 27) + 
+                        Math.floor((sumGear * 18) / 27) + 
+                        Math.floor((sumRelic * 33) / 27) + 
+                        Math.floor((sumSkill * 7) / 27) + 
+                        Math.floor((sumFantom * 8) / 27) + 45;
+
+      output.push(["TOTAL", 0, totalPoints, totalPrimos]);
       
       // 1. Goal Status Message (Converted to Primostars for UI)
       let primostarsGained = Math.floor(pointsGained / 27) + 45;
@@ -489,7 +497,7 @@
       }
 
       // 3. AI Farming Plan
-      output.push(["--- AI FARMING PLAN ---", ""]);
+      output.push(["--- FARMING PLAN ---", ""]);
       Object.keys(banks).forEach(key => {
         let b = banks[key];
         // Only show the group if at least one resource was spent
