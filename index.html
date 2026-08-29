@@ -518,21 +518,21 @@
       
       // 5. Materials Used
       output.push(["--- MATERIALS USED ---", ""]);
-      output.push(["Iron Used", Math.floor(banks["Iron"].totalUsed)]);
-      output.push(["Sand Used", Math.floor(banks["Sand"].totalUsed)]);
-      output.push(["Essence Used", Math.floor(banks["Essence"].totalUsed)]);
-      output.push(["Rolla Used", Math.floor(banks["Rolla"].totalUsed)]);
-      output.push(["Treat XP Used", Math.floor(banks["Treats"].totalUsed)]);
+      output.push(["Iron Used", Math.floor(banks["Iron"].totalUsed).toLocaleString('en-US')]);
+      output.push(["Sand Used", Math.floor(banks["Sand"].totalUsed).toLocaleString('en-US')]);
+      output.push(["Essence Used", Math.floor(banks["Essence"].totalUsed).toLocaleString('en-US')]);
+      output.push(["Rolla Used", Math.floor(banks["Rolla"].totalUsed).toLocaleString('en-US')]);
+      output.push(["Treat XP Used", Math.floor(banks["Treats"].totalUsed).toLocaleString('en-US')]);
 
-      // 6. Resources Left
+      // 6. Resources Left (Energy & GM excluded from commas)
       output.push(["--- RESOURCES LEFT ---", ""]);
-      output.push(["Energy Left", Math.Floor(totalEnergy]));
+      output.push(["Energy Left", Math.floor(totalEnergy)]);
       output.push(["Grand Mines Left", totalGM]);
-      output.push(["Iron Left", Math.floor(banks["Iron"].bag)]);
-      output.push(["Sand Left", Math.floor(banks["Sand"].bag)]);
-      output.push(["Essence Left", Math.floor(banks["Essence"].bag)]);
-      output.push(["Rolla Left", Math.floor(banks["Rolla"].bag)]);
-      output.push(["Treat XP Left", Math.floor(banks["Treats"].bag)]);
+      output.push(["Iron Left", Math.floor(banks["Iron"].bag).toLocaleString('en-US')]);
+      output.push(["Sand Left", Math.floor(banks["Sand"].bag).toLocaleString('en-US')]);
+      output.push(["Essence Left", Math.floor(banks["Essence"].bag).toLocaleString('en-US')]);
+      output.push(["Rolla Left", Math.floor(banks["Rolla"].bag).toLocaleString('en-US')]);
+      output.push(["Treat XP Left", Math.floor(banks["Treats"].bag).toLocaleString('en-US')]);
 
       return output;
     }
