@@ -152,7 +152,11 @@
         let daysLeft = Math.floor(hoursl / 24);
         let hoursLeft = hoursl + (2*daysLeft)
         // Goal Math
-        let ptsGoal = (Number(document.getElementById('goalPts').value) - Number(document.getElementById('prevTotal').value)) * 27;
+
+        // Goal Math: (Goal - Previous - 45 Base Stars) * 27
+        let goalStars = Number(document.getElementById('goalPts').value);
+        let prevStars = Number(document.getElementById('prevTotal').value);
+        let ptsGoal = (goalStars - prevStars - 45) * 27;
         let cEnergy = Number(document.getElementById('currentEnergy').value);
         let cGM = Number(document.getElementById('currentGM').value);
         let saveXP = document.getElementById('saveXP').value;
@@ -251,7 +255,6 @@
       ironData, sandData, essData, treatData 
     ) {
       const flat = (arr) => Array.isArray(arr) ? arr.flat() : [arr];
-      let pointsGained = 0;
       
       let cIn = flat(charInputs);
       let charLevel = Number(cIn[0]), expIntoLevel = Number(cIn[1]), expPerHour = Number(cIn[2]);
@@ -274,11 +277,19 @@
       let totalGM = Number(currentGM) + generatedGM;
 
       // --- PRE-CALCULATE CURRENT VERIFICATION LEVELS ---
-      let startChar = charLevel; // Adjust if game subtracts base (e.g., charLevel - 130)
-      let sumGear = flat(gearLevels).reduce((a, b) => a + Number(b), 0);
-      let sumSkill = flat(skillLevels).reduce((a, b) => a + Number(b), 0);
-      let sumRelic = flat(relicLevels).reduce((a, b) => a + Number(b), 0);
-      let sumFantom = flat(fantomLevels).reduce((a, b) => a + Number(b), 0);
+      let gearBase = Number(flat(gearCosts)[4]);
+      let skillBase = Number(flat(skillCosts)[2]);
+      let relicBase = Number(flat(relicCosts)[4]);
+      let fantomBase = Number(flat(fantomCosts)[2]);
+
+      let startChar = Math.max(0, charLevel - charBaseLevel);
+      let sumGear = flat(gearLevels).reduce((a, b) => a + Math.max(0, Number(b) - gearBase), 0);
+      let sumSkill = flat(skillLevels).reduce((a, b) => a + Math.max(0, Number(b) - skillBase), 0);
+      let sumRelic = flat(relicLevels).reduce((a, b) => a + Math.max(0, Number(b) - relicBase), 0);
+      let sumFantom = flat(fantomLevels).reduce((a, b) => a + Math.max(0, Number(b) - fantomBase), 0);
+
+      // Start the loop with the points you already own!
+      let pointsGained = (startChar * 100) + (sumGear * 18) + (sumSkill * 7) + (sumRelic * 33) + (sumFantom * 8);
 
       function createMatBank(name, dataArr, canUseGM) {
         let d = flat(dataArr);
