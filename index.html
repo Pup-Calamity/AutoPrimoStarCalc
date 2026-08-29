@@ -122,7 +122,7 @@
     <button class="btn-calc" onclick="runApp()">Run Optimization</button>
 
     <div id="outputArea">
-        <h2>AI Farming Report</h2>
+        <h2>Reccomnedations</h2>
         <div class="results-grid" id="dashboardGrid"></div>
     </div>
 </div>
@@ -489,10 +489,15 @@
       }
 
       // 3. AI Farming Plan
-      output.push(["--- FARMING PLAN ---", ""]);
+      output.push(["--- AI FARMING PLAN ---", ""]);
       Object.keys(banks).forEach(key => {
         let b = banks[key];
-        if (b.energySpent > 0 || b.gmSpent > 0 || b.mrSpent > 0) output.push([`${key} Farming`, `${b.energySpent} Engy | ${b.gmSpent} GM | ${b.mrSpent} MR`]);
+        // Only show the group if at least one resource was spent
+        if (b.energySpent > 0 || b.gmSpent > 0 || b.mrSpent > 0) {
+          output.push([`${key} Farming`, `${b.energySpent} Energy`]);
+          output.push(["", `${b.gmSpent} Grand Mines`]);
+          output.push(["", `${b.mrSpent} Material Realms`]);
+        }
       });
 
       // 4. Character & Segmented Levels
@@ -521,7 +526,7 @@
 
       // 6. Resources Left
       output.push(["--- RESOURCES LEFT ---", ""]);
-      output.push(["Energy Left", totalEnergy]);
+      output.push(["Energy Left", Math.Floor(totalEnergy]));
       output.push(["Grand Mines Left", totalGM]);
       output.push(["Iron Left", Math.floor(banks["Iron"].bag)]);
       output.push(["Sand Left", Math.floor(banks["Sand"].bag)]);
