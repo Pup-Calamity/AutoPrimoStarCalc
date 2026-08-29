@@ -128,6 +128,31 @@
 </div>
 
 <script>
+
+    // --- 0. AUTO-SET CURRENT DATE/TIME TO US EST ---
+    window.onload = function() {
+        // 1. Get the current time and force it to New York timezone
+        let now = new Date();
+        let estString = now.toLocaleString("en-US", {timeZone: "America/New_York"});
+        let estDate = new Date(estString);
+        
+        // 2. Format it precisely for the HTML input (YYYY-MM-DDThh:mm)
+        let year = estDate.getFullYear();
+        let month = String(estDate.getMonth() + 1).padStart(2, '0');
+        let day = String(estDate.getDate()).padStart(2, '0');
+        let hours = String(estDate.getHours()).padStart(2, '0');
+        let minutes = String(estDate.getMinutes()).padStart(2, '0');
+        
+        document.getElementById('currentDate').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
+
+    document.addEventListener('input', function(e) {
+        if (e.target.type === 'number') {
+            // Instantly strips out anything that is NOT a digit from 0 to 9
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        }
+    });
+    
     // --- 1. UI GENERATION ---
     let skillHtml = "";
     for(let i=1; i<=8; i++) skillHtml += `<div class="input-group"><label>Position ${i}</label><input type="number" id="skill${i}" value="168" style="width:60px;"></div>`;
@@ -438,10 +463,20 @@
       }
 
       let output = [];
+
+      // 2. Verification Grid (4 Columns)
+      output.push(["--- CURRENT OBTAINED LEVELS ---", ""]);
+      output.push(["Category", "Prog Levels", "Prog Points", "Primostars"]);
+      output.push(["Character Level", startChar, startChar * 100, Math.floor((startChar * 100) / 27)]);
+      output.push(["Gear", sumGear, sumGear * 18, Math.floor((sumGear * 18) / 27)]);
+      output.push(["Relic", sumRelic, sumRelic * 33, Math.floor((sumRelic * 33) / 27)]);
+      output.push(["Skills", sumSkill, sumSkill * 7, Math.floor((sumSkill * 7) / 27)]);
+      output.push(["Fantomon", sumFantom, sumFantom * 8, Math.floor((sumFantom * 8) / 27)]);
+      output.push(["Guaranteed", "-", "-", 45]);
       
       // 1. Goal Status Message (Converted to Primostars for UI)
-      let primostarsGained = Math.floor(pointsGained / 27);
-      let primostarsTarget = Math.floor(pointsGoal / 27);
+      let primostarsGained = Math.floor(pointsGained / 27) + 45;
+      let primostarsTarget = Math.floor(pointsGoal / 27) + 45;
 
       output.push(["--- GOAL STATUS ---", ""]);
       if (pointsGained >= pointsGoal) {
@@ -453,18 +488,8 @@
           output.push(["Shortfall", `${primostarsTarget - primostarsGained} Primostars`]);
       }
 
-      // 2. Verification Grid (4 Columns)
-      output.push(["--- CURRENT OBTAINED LEVELS ---", ""]);
-      output.push(["Category", "Prog Levels", "Prog Points", "Primostars"]);
-      output.push(["Character Level", startChar, startChar * 100, Math.floor((startChar * 100) / 27)]);
-      output.push(["Gear", sumGear, sumGear * 18, Math.floor((sumGear * 18) / 27)]);
-      output.push(["Relic", sumRelic, sumRelic * 33, Math.floor((sumRelic * 33) / 27)]);
-      output.push(["Skills", sumSkill, sumSkill * 7, Math.floor((sumSkill * 7) / 27)]);
-      output.push(["Fantomon", sumFantom, sumFantom * 8, Math.floor((sumFantom * 8) / 27)]);
-      output.push(["Guaranteed", "-", "-", 45]);
-
       // 3. AI Farming Plan
-      output.push(["--- AI FARMING PLAN ---", ""]);
+      output.push(["--- FARMING PLAN ---", ""]);
       Object.keys(banks).forEach(key => {
         let b = banks[key];
         if (b.energySpent > 0 || b.gmSpent > 0 || b.mrSpent > 0) output.push([`${key} Farming`, `${b.energySpent} Engy | ${b.gmSpent} GM | ${b.mrSpent} MR`]);
