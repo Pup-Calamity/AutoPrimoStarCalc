@@ -151,10 +151,8 @@
         let hoursl = Math.max(0, (d2 - d1) / (1000 * 60 * 60));
         let daysLeft = Math.floor(hoursl / 24);
         let hoursLeft = hoursl + (2*daysLeft)
-        // Goal Math: (Goal - Previous - 45 Base Stars) * 27
-        let goalStars = Number(document.getElementById('goalPts').value);
-        let prevStars = Number(document.getElementById('prevTotal').value);
-        let ptsGoal = (goalStars - prevStars - 45) * 27;
+        // Goal Math
+        let ptsGoal = (Number(document.getElementById('goalPts').value) - Number(document.getElementById('prevTotal').value)) * 27;
         let cEnergy = Number(document.getElementById('currentEnergy').value);
         let cGM = Number(document.getElementById('currentGM').value);
         let saveXP = document.getElementById('saveXP').value;
@@ -276,19 +274,11 @@
       let totalGM = Number(currentGM) + generatedGM;
 
       // --- PRE-CALCULATE CURRENT VERIFICATION LEVELS ---
-      let gearBase = Number(flat(gearCosts)[4]);
-      let skillBase = Number(flat(skillCosts)[2]);
-      let relicBase = Number(flat(relicCosts)[4]);
-      let fantomBase = Number(flat(fantomCosts)[2]);
-
-      let startChar = Math.max(0, charLevel - charBaseLevel);
-      let sumGear = flat(gearLevels).reduce((a, b) => a + Math.max(0, Number(b) - gearBase), 0);
-      let sumSkill = flat(skillLevels).reduce((a, b) => a + Math.max(0, Number(b) - skillBase), 0);
-      let sumRelic = flat(relicLevels).reduce((a, b) => a + Math.max(0, Number(b) - relicBase), 0);
-      let sumFantom = flat(fantomLevels).reduce((a, b) => a + Math.max(0, Number(b) - fantomBase), 0);
-
-      // Start the loop with the points you already own!
-      let pointsGained = (startChar * 100) + (sumGear * 18) + (sumSkill * 7) + (sumRelic * 33) + (sumFantom * 8);
+      let startChar = charLevel; // Adjust if game subtracts base (e.g., charLevel - 130)
+      let sumGear = flat(gearLevels).reduce((a, b) => a + Number(b), 0);
+      let sumSkill = flat(skillLevels).reduce((a, b) => a + Number(b), 0);
+      let sumRelic = flat(relicLevels).reduce((a, b) => a + Number(b), 0);
+      let sumFantom = flat(fantomLevels).reduce((a, b) => a + Number(b), 0);
 
       function createMatBank(name, dataArr, canUseGM) {
         let d = flat(dataArr);
@@ -298,7 +288,7 @@
           canUseGM: canUseGM, energySpent: 0, gmSpent: 0, mrSpent: 0, totalUsed: 0
         };
       }
-        
+
       let banks = {
         "Rolla": createMatBank("Rolla", rollaData, true),
         "Iron": createMatBank("Iron", ironData, true),
@@ -438,18 +428,15 @@
 
       let output = [];
       
-      // 1. Goal Status Message (Converted to Primostars for UI)
-      let primostarsGained = Math.floor(pointsGained / 27);
-      let primostarsTarget = Math.floor(pointsGoal / 27);
-
+      // 1. Goal Status Message
       output.push(["--- GOAL STATUS ---", ""]);
       if (pointsGained >= pointsGoal) {
           output.push(["Status", "✅ Goal Achievable!"]);
-          output.push(["Season Primostars", `${primostarsGained} / ${primostarsTarget}`]);
+          output.push(["Points Gained", `${pointsGained} / ${pointsGoal}`]);
       } else {
           output.push(["Status", "❌ Not Enough Resources"]);
-          output.push(["Max Season Primostars", `${primostarsGained} / ${primostarsTarget}`]);
-          output.push(["Shortfall", `${primostarsTarget - primostarsGained} Primostars`]);
+          output.push(["Max Points Possible", `${pointsGained} / ${pointsGoal}`]);
+          output.push(["Shortfall", `${pointsGoal - pointsGained} Points`]);
       }
 
       // 2. Verification Grid (4 Columns)
