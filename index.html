@@ -48,7 +48,7 @@
             <div class="input-group"><label>Goal:</label><input type="number" id="goalPts" value="1200"></div>
             <div class="input-group"><label>Saving 36 Hrs XP?</label><select id="saveXP"><option value="YES">YES</option><option value="NO">NO</option></select></div>
             <hr style="border-color:#333;">
-            <div class="input-group"><label>Current Energy (Total):</label><input type="number" id="currentEnergy" value="150"></div>
+            <div class="input-group"><label>Current Energy (Total):</label><input type="number" id="currentEnergy" value="0"></div>
             <div class="input-group"><label>Current Grand Mines:</label><input type="number" id="currentGM" value="0"></div>
         </div>
 
@@ -410,18 +410,39 @@
         bestItem.level++; pointsGained += bestItem.points;
       }
 
+// ========================================================
+      // FORMAT THE OUTPUT REPORT
+      // ========================================================
       let output = [];
-      output.push(["--- CHARACTER ---", ""]);
-      output.push(["Character Level", charLevel]);
-      output.push(["--- OPTIMIZED LEVELS ---", ""]);
-      for (let i = 0; i < allItems.length; i++) output.push([allItems[i].name, allItems[i].level]);
       
+      // 1. AI Farming Plan (Moved to the very top!)
       output.push(["--- AI FARMING PLAN ---", ""]);
       Object.keys(banks).forEach(key => {
         let b = banks[key];
-        if (b.energySpent > 0 || b.gmSpent > 0 || b.mrSpent > 0) output.push([`${key} Farming`, `${b.energySpent} Engy | ${b.gmSpent} GM | ${b.mrSpent} MR`]);
+        if (b.energySpent > 0 || b.gmSpent > 0 || b.mrSpent > 0) {
+          output.push([`${key} Farming`, `${b.energySpent} Engy | ${b.gmSpent} GM | ${b.mrSpent} MR`]);
+        }
       });
+
+      // 2. Character Overview
+      output.push(["--- CHARACTER ---", ""]);
+      output.push(["Character Level", charLevel]);
+      output.push(["Total Points Reached", pointsGained]);
       
+      // 3. Segmented Levels (This creates separate UI cards for each category)
+      output.push(["--- GEAR ---", ""]);
+      allItems.filter(i => i.name.startsWith("Gear")).forEach(i => output.push([i.name, i.level]));
+      
+      output.push(["--- SKILLS ---", ""]);
+      allItems.filter(i => i.name.startsWith("Skill")).forEach(i => output.push([i.name, i.level]));
+      
+      output.push(["--- FANTOMON ---", ""]);
+      allItems.filter(i => i.name.startsWith("Fantomon")).forEach(i => output.push([i.name, i.level]));
+      
+      output.push(["--- RELICS ---", ""]);
+      allItems.filter(i => i.name.startsWith("Relic")).forEach(i => output.push([i.name, i.level]));
+      
+      // 4. Materials Used
       output.push(["--- MATERIALS USED ---", ""]);
       output.push(["Iron Used", Math.floor(banks["Iron"].totalUsed)]);
       output.push(["Sand Used", Math.floor(banks["Sand"].totalUsed)]);
@@ -429,6 +450,7 @@
       output.push(["Rolla Used", Math.floor(banks["Rolla"].totalUsed)]);
       output.push(["Treat XP Used", Math.floor(banks["Treats"].totalUsed)]);
 
+      // 5. Leftovers
       output.push(["--- RESOURCES LEFT ---", ""]);
       output.push(["Energy Left", totalEnergy]);
       output.push(["Grand Mines Left", totalGM]);
@@ -437,7 +459,6 @@
       output.push(["Essence Left", Math.floor(banks["Essence"].bag)]);
       output.push(["Rolla Left", Math.floor(banks["Rolla"].bag)]);
       output.push(["Treat XP Left", Math.floor(banks["Treats"].bag)]);
-      output.push(["Total Points Reached", pointsGained]);
 
       return output;
     }
