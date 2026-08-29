@@ -439,15 +439,18 @@
 
       let output = [];
       
-      // 1. Goal Status Message
+      // 1. Goal Status Message (Converted to Primostars for UI)
+      let primostarsGained = Math.floor(pointsGained / 27);
+      let primostarsTarget = Math.floor(pointsGoal / 27);
+
       output.push(["--- GOAL STATUS ---", ""]);
       if (pointsGained >= pointsGoal) {
           output.push(["Status", "✅ Goal Achievable!"]);
-          output.push(["Points Gained", `${pointsGained} / ${pointsGoal}`]);
+          output.push(["Season Primostars", `${primostarsGained} / ${primostarsTarget}`]);
       } else {
           output.push(["Status", "❌ Not Enough Resources"]);
-          output.push(["Max Points Possible", `${pointsGained} / ${pointsGoal}`]);
-          output.push(["Shortfall", `${pointsGoal - pointsGained} Points`]);
+          output.push(["Max Season Primostars", `${primostarsGained} / ${primostarsTarget}`]);
+          output.push(["Shortfall", `${primostarsTarget - primostarsGained} Primostars`]);
       }
 
       // 2. Verification Grid (4 Columns)
