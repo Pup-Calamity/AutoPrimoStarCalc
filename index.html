@@ -224,12 +224,21 @@
 
         for(let i = 0; i < resultsArray.length; i++) {
             let row = resultsArray[i];
-            if (row[1] === "") {
+            
+            // Detect header row (2 items, 2nd is empty)
+            if (row.length === 2 && row[1] === "") {
                 if (currentCard !== "") dashGrid.innerHTML += `<div class="card"><h3>${currentCard}</h3><table class="result-table">${currentTable}</table></div>`;
                 currentCard = row[0].replace(/---/g, '').trim();
                 currentTable = "";
             } else {
-                currentTable += `<tr><td>${row[0]}</td><td style="text-align:right; font-weight:bold;">${row[1]}</td></tr>`;
+                // Build dynamic columns based on array length
+                currentTable += `<tr>`;
+                for(let j=0; j < row.length; j++) {
+                    let align = (j === 0) ? 'left' : 'right';
+                    let weight = (j > 0) ? 'bold' : 'normal';
+                    currentTable += `<td style="text-align:${align}; font-weight:${weight};">${row[j]}</td>`;
+                }
+                currentTable += `</tr>`;
             }
         }
         if (currentCard !== "") dashGrid.innerHTML += `<div class="card"><h3>${currentCard}</h3><table class="result-table">${currentTable}</table></div>`;
@@ -263,6 +272,13 @@
         }
       }
       let totalGM = Number(currentGM) + generatedGM;
+
+      // --- PRE-CALCULATE CURRENT VERIFICATION LEVELS ---
+      let startChar = charLevel; // Adjust if game subtracts base (e.g., charLevel - 130)
+      let sumGear = flat(gearLevels).reduce((a, b) => a + Number(b), 0);
+      let sumSkill = flat(skillLevels).reduce((a, b) => a + Number(b), 0);
+      let sumRelic = flat(relicLevels).reduce((a, b) => a + Number(b), 0);
+      let sumFantom = flat(fantomLevels).reduce((a, b) => a + Number(b), 0);
 
       function createMatBank(name, dataArr, canUseGM) {
         let d = flat(dataArr);
@@ -410,39 +426,53 @@
         bestItem.level++; pointsGained += bestItem.points;
       }
 
-// ========================================================
-      // FORMAT THE OUTPUT REPORT
-      // ========================================================
       let output = [];
       
-      // 1. AI Farming Plan (Moved to the very top!)
+      // 1. Goal Status Message
+      output.push(["--- GOAL STATUS ---", ""]);
+      if (pointsGained >= pointsGoal) {
+          output.push(["Status", "✅ Goal Achievable!"]);
+          output.push(["Points Gained", `${pointsGained} / ${pointsGoal}`]);
+      } else {
+          output.push(["Status", "❌ Not Enough Resources"]);
+          output.push(["Max Points Possible", `${pointsGained} / ${pointsGoal}`]);
+          output.push(["Shortfall", `${pointsGoal - pointsGained} Points`]);
+      }
+
+      // 2. Verification Grid (4 Columns)
+      output.push(["--- CURRENT OBTAINED LEVELS ---", ""]);
+      output.push(["Category", "Prog Levels", "Prog Points", "Primostars"]);
+      output.push(["Character Level", startChar, startChar * 100, Math.floor((startChar * 100) / 27)]);
+      output.push(["Gear", sumGear, sumGear * 18, Math.floor((sumGear * 18) / 27)]);
+      output.push(["Relic", sumRelic, sumRelic * 33, Math.floor((sumRelic * 33) / 27)]);
+      output.push(["Skills", sumSkill, sumSkill * 7, Math.floor((sumSkill * 7) / 27)]);
+      output.push(["Fantomon", sumFantom, sumFantom * 8, Math.floor((sumFantom * 8) / 27)]);
+      output.push(["Guaranteed", "-", "-", 45]);
+
+      // 3. AI Farming Plan
       output.push(["--- AI FARMING PLAN ---", ""]);
       Object.keys(banks).forEach(key => {
         let b = banks[key];
-        if (b.energySpent > 0 || b.gmSpent > 0 || b.mrSpent > 0) {
-          output.push([`${key} Farming`, `${b.energySpent} Engy | ${b.gmSpent} GM | ${b.mrSpent} MR`]);
-        }
+        if (b.energySpent > 0 || b.gmSpent > 0 || b.mrSpent > 0) output.push([`${key} Farming`, `${b.energySpent} Engy | ${b.gmSpent} GM | ${b.mrSpent} MR`]);
       });
 
-      // 2. Character Overview
-      output.push(["--- CHARACTER ---", ""]);
+      // 4. Character & Segmented Levels
+      output.push(["--- CHARACTER END LEVEL ---", ""]);
       output.push(["Character Level", charLevel]);
-      output.push(["Total Points Reached", pointsGained]);
-      
-      // 3. Segmented Levels (This creates separate UI cards for each category)
-      output.push(["--- GEAR ---", ""]);
+
+      output.push(["--- GEAR UPGRADES ---", ""]);
       allItems.filter(i => i.name.startsWith("Gear")).forEach(i => output.push([i.name, i.level]));
       
-      output.push(["--- SKILLS ---", ""]);
+      output.push(["--- SKILLS UPGRADES ---", ""]);
       allItems.filter(i => i.name.startsWith("Skill")).forEach(i => output.push([i.name, i.level]));
       
-      output.push(["--- FANTOMON ---", ""]);
+      output.push(["--- FANTOMON UPGRADES ---", ""]);
       allItems.filter(i => i.name.startsWith("Fantomon")).forEach(i => output.push([i.name, i.level]));
       
-      output.push(["--- RELICS ---", ""]);
+      output.push(["--- RELICS UPGRADES ---", ""]);
       allItems.filter(i => i.name.startsWith("Relic")).forEach(i => output.push([i.name, i.level]));
       
-      // 4. Materials Used
+      // 5. Materials Used
       output.push(["--- MATERIALS USED ---", ""]);
       output.push(["Iron Used", Math.floor(banks["Iron"].totalUsed)]);
       output.push(["Sand Used", Math.floor(banks["Sand"].totalUsed)]);
@@ -450,7 +480,7 @@
       output.push(["Rolla Used", Math.floor(banks["Rolla"].totalUsed)]);
       output.push(["Treat XP Used", Math.floor(banks["Treats"].totalUsed)]);
 
-      // 5. Leftovers
+      // 6. Resources Left
       output.push(["--- RESOURCES LEFT ---", ""]);
       output.push(["Energy Left", totalEnergy]);
       output.push(["Grand Mines Left", totalGM]);
