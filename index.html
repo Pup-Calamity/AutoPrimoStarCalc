@@ -217,7 +217,7 @@
         let mrRolla = Number(document.getElementById('mrPicks').value) + (Number(document.getElementById('dailyRolla').value) * 5 * daysLeft);
 
         // Calculate Passive Bags (Starting Bag + (Cart/Hr * Hours Left))
-        let bagIron = Number(document.getElementById('bagIron').value) + (Number(document.getElementById('cartIron').value+160) * hoursLeft);
+        let bagIron = Number(document.getElementById('bagIron').value) + (Number(document.getElementById('cartIron').value + 160) * hoursLeft);
         let bagEssence = Number(document.getElementById('bagEssence').value) + (Number(document.getElementById('cartEssence').value) * hoursLeft);
         let bagSand = Number(document.getElementById('bagSand').value) + (Number(document.getElementById('cartSand').value) * hoursLeft);
         let bagRolla = Number(document.getElementById('bagRolla').value) + (Number(document.getElementById('cartRolla').value) * hoursLeft);
