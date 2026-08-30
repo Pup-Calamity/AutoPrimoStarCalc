@@ -67,7 +67,7 @@
         <div class="card">
             <h3 style="color: #d32f2f;">Material Realms</h3>
             <div class="table-header"><span style="text-align:left; width:100px;">Realm Tool</span><span>In Bag</span><span>Daily Buys</span></div>
-            <div class="input-group"><label style="width:100px;">Hammers (Iron)</label><input type="number" id="mrHammers" value="212"><input type="number" id="dailyIron" value="4"></div>
+            <div class="input-group"><label style="width:100px;">Hammers (Iron)</label><input type="number" id="mrHammers" value="212"><input type="number" id="" value="4"></div>
             <div class="input-group"><label style="width:100px;">Gloves (Essence)</label><input type="number" id="mrGloves" value="323"><input type="number" id="dailyEssence" value="2"></div>
             <div class="input-group"><label style="width:100px;">Shovels (Sand)</label><input type="number" id="mrShovels" value="144"><input type="number" id="dailySand" value="2"></div>
             <div class="input-group"><label style="width:100px;">Gold Pick (Rolla)</label><input type="number" id="mrPicks" value="101"><input type="number" id="dailyRolla" value="2"></div>
@@ -122,12 +122,44 @@
     <button class="btn-calc" onclick="runApp()">Run Optimization</button>
 
     <div id="outputArea">
-        <h2>AI Farming Report</h2>
+        <h2>Reccomnedations</h2>
         <div class="results-grid" id="dashboardGrid"></div>
     </div>
 </div>
 
 <script>
+
+    // --- 0. AUTO-SET CURRENT DATE/TIME TO US EST ---
+    window.onload = function() {
+        // 1. Get the current time and force it to New York timezone
+        let now = new Date();
+        let estString = now.toLocaleString("en-US", {timeZone: "America/New_York"});
+        let estDate = new Date(estString);
+        
+        // 2. Format it precisely for the HTML input (YYYY-MM-DDThh:mm)
+        let year = estDate.getFullYear();
+        let month = String(estDate.getMonth() + 1).padStart(2, '0');
+        let day = String(estDate.getDate()).padStart(2, '0');
+        let hours = String(estDate.getHours()).padStart(2, '0');
+        let minutes = String(estDate.getMinutes()).padStart(2, '0');
+        
+        document.getElementById('currentDate').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
+
+    document.addEventListener('input', function(e) {
+        if (e.target.type === 'number') {
+            // Instantly strips out anything that is NOT a digit from 0 to 9
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        }
+    });
+
+    // --- 0.75 AUTO-SELECT TEXT ON CLICK ---
+    document.addEventListener('focusin', function(e) {
+        if (e.target.tagName === 'INPUT') {
+            e.target.select();
+        }
+    });
+    
     // --- 1. UI GENERATION ---
     let skillHtml = "";
     for(let i=1; i<=8; i++) skillHtml += `<div class="input-group"><label>Position ${i}</label><input type="number" id="skill${i}" value="168" style="width:60px;"></div>`;
@@ -151,6 +183,8 @@
         let hoursl = Math.max(0, (d2 - d1) / (1000 * 60 * 60));
         let daysLeft = Math.floor(hoursl / 24);
         let hoursLeft = hoursl + (2*daysLeft)
+        // Goal Math
+
         // Goal Math: (Goal - Previous - 45 Base Stars) * 27
         let goalStars = Number(document.getElementById('goalPts').value);
         let prevStars = Number(document.getElementById('prevTotal').value);
@@ -177,13 +211,13 @@
         totalTreatXP += passiveTreatXP;
 
         // Material Realm (MR) Attempts = On Hand + (Daily Buys * 5 * Days Left)
-        let mrIron = Number(document.getElementById('mrHammers').value) + (Number(document.getElementById('dailyIron').value) * 5 * daysLeft);
+        let mrIron = Number(document.getElementById('mrHammers').value) + (Number(document.getElementById('').value) * 5 * daysLeft);
         let mrEssence = Number(document.getElementById('mrGloves').value) + (Number(document.getElementById('dailyEssence').value) * 5 * daysLeft);
         let mrSand = Number(document.getElementById('mrShovels').value) + (Number(document.getElementById('dailySand').value) * 5 * daysLeft);
         let mrRolla = Number(document.getElementById('mrPicks').value) + (Number(document.getElementById('dailyRolla').value) * 5 * daysLeft);
 
         // Calculate Passive Bags (Starting Bag + (Cart/Hr * Hours Left))
-        let bagIron = Number(document.getElementById('bagIron').value) + (Number(document.getElementById('cartIron').value) * hoursLeft);
+        let bagIron = Number(document.getElementById('bagIron').value) + (Number(document.getElementById('cartIron').value+160) * hoursLeft);
         let bagEssence = Number(document.getElementById('bagEssence').value) + (Number(document.getElementById('cartEssence').value) * hoursLeft);
         let bagSand = Number(document.getElementById('bagSand').value) + (Number(document.getElementById('cartSand').value) * hoursLeft);
         let bagRolla = Number(document.getElementById('bagRolla').value) + (Number(document.getElementById('cartRolla').value) * hoursLeft);
@@ -253,7 +287,6 @@
       ironData, sandData, essData, treatData 
     ) {
       const flat = (arr) => Array.isArray(arr) ? arr.flat() : [arr];
-      let pointsGained = 0;
       
       let cIn = flat(charInputs);
       let charLevel = Number(cIn[0]), expIntoLevel = Number(cIn[1]), expPerHour = Number(cIn[2]);
@@ -298,7 +331,7 @@
           canUseGM: canUseGM, energySpent: 0, gmSpent: 0, mrSpent: 0, totalUsed: 0
         };
       }
-        
+
       let banks = {
         "Rolla": createMatBank("Rolla", rollaData, true),
         "Iron": createMatBank("Iron", ironData, true),
@@ -437,10 +470,28 @@
       }
 
       let output = [];
+
+      // 2. Verification Grid (4 Columns)
+      output.push(["--- CURRENT OBTAINED LEVELS ---", ""]);
+      output.push(["Category", "Prog Levels", "Prog Points", "Primostars"]);
+      output.push(["Character Level", startChar, startChar * 100, Math.floor((startChar * 100) / 27)]);
+      output.push(["Gear", sumGear, sumGear * 18, Math.floor((sumGear * 18) / 27)]);
+      output.push(["Relic", sumRelic, sumRelic * 33, Math.floor((sumRelic * 33) / 27)]);
+      output.push(["Skills", sumSkill, sumSkill * 7, Math.floor((sumSkill * 7) / 27)]);
+      output.push(["Fantomon", sumFantom, sumFantom * 8, Math.floor((sumFantom * 8) / 27)]);
+      output.push(["Guaranteed", "-", "-", 45]);
+      let totalPoints = (startChar * 100) + (sumGear * 18) + (sumRelic * 33) + (sumSkill * 7) + (sumFantom * 8);
+      let totalPrimos = Math.floor((startChar * 100) / 27) + 
+                        Math.floor((sumGear * 18) / 27) + 
+                        Math.floor((sumRelic * 33) / 27) + 
+                        Math.floor((sumSkill * 7) / 27) + 
+                        Math.floor((sumFantom * 8) / 27) + 45;
+
+      output.push(["TOTAL", 0, totalPoints, totalPrimos]);
       
       // 1. Goal Status Message (Converted to Primostars for UI)
-      let primostarsGained = Math.floor(pointsGained / 27);
-      let primostarsTarget = Math.floor(pointsGoal / 27);
+      let primostarsGained = Math.floor(pointsGained / 27) + 45;
+      let primostarsTarget = Math.floor(pointsGoal / 27) + 45;
 
       output.push(["--- GOAL STATUS ---", ""]);
       if (pointsGained >= pointsGoal) {
@@ -452,21 +503,16 @@
           output.push(["Shortfall", `${primostarsTarget - primostarsGained} Primostars`]);
       }
 
-      // 2. Verification Grid (4 Columns)
-      output.push(["--- CURRENT OBTAINED LEVELS ---", ""]);
-      output.push(["Category", "Prog Levels", "Prog Points", "Primostars"]);
-      output.push(["Character Level", startChar, startChar * 100, Math.floor((startChar * 100) / 27)]);
-      output.push(["Gear", sumGear, sumGear * 18, Math.floor((sumGear * 18) / 27)]);
-      output.push(["Relic", sumRelic, sumRelic * 33, Math.floor((sumRelic * 33) / 27)]);
-      output.push(["Skills", sumSkill, sumSkill * 7, Math.floor((sumSkill * 7) / 27)]);
-      output.push(["Fantomon", sumFantom, sumFantom * 8, Math.floor((sumFantom * 8) / 27)]);
-      output.push(["Guaranteed", "-", "-", 45]);
-
       // 3. AI Farming Plan
-      output.push(["--- AI FARMING PLAN ---", ""]);
+      output.push(["--- FARMING PLAN ---", ""]);
       Object.keys(banks).forEach(key => {
         let b = banks[key];
-        if (b.energySpent > 0 || b.gmSpent > 0 || b.mrSpent > 0) output.push([`${key} Farming`, `${b.energySpent} Engy | ${b.gmSpent} GM | ${b.mrSpent} MR`]);
+        // Only show the group if at least one resource was spent
+        if (b.energySpent > 0 || b.gmSpent > 0 || b.mrSpent > 0) {
+          output.push([`${key} Farming`, `${b.energySpent} Energy`]);
+          output.push(["", `${b.gmSpent} Grand Mines`]);
+          output.push(["", `${b.mrSpent} Material Realms`]);
+        }
       });
 
       // 4. Character & Segmented Levels
@@ -487,21 +533,21 @@
       
       // 5. Materials Used
       output.push(["--- MATERIALS USED ---", ""]);
-      output.push(["Iron Used", Math.floor(banks["Iron"].totalUsed)]);
-      output.push(["Sand Used", Math.floor(banks["Sand"].totalUsed)]);
-      output.push(["Essence Used", Math.floor(banks["Essence"].totalUsed)]);
-      output.push(["Rolla Used", Math.floor(banks["Rolla"].totalUsed)]);
-      output.push(["Treat XP Used", Math.floor(banks["Treats"].totalUsed)]);
+      output.push(["Iron Used", Math.floor(banks["Iron"].totalUsed).toLocaleString('en-US')]);
+      output.push(["Sand Used", Math.floor(banks["Sand"].totalUsed).toLocaleString('en-US')]);
+      output.push(["Essence Used", Math.floor(banks["Essence"].totalUsed).toLocaleString('en-US')]);
+      output.push(["Rolla Used", Math.floor(banks["Rolla"].totalUsed).toLocaleString('en-US')]);
+      output.push(["Treat XP Used", Math.floor(banks["Treats"].totalUsed).toLocaleString('en-US')]);
 
-      // 6. Resources Left
+      // 6. Resources Left (Energy & GM excluded from commas)
       output.push(["--- RESOURCES LEFT ---", ""]);
-      output.push(["Energy Left", totalEnergy]);
+      output.push(["Energy Left", Math.floor(totalEnergy)]);
       output.push(["Grand Mines Left", totalGM]);
-      output.push(["Iron Left", Math.floor(banks["Iron"].bag)]);
-      output.push(["Sand Left", Math.floor(banks["Sand"].bag)]);
-      output.push(["Essence Left", Math.floor(banks["Essence"].bag)]);
-      output.push(["Rolla Left", Math.floor(banks["Rolla"].bag)]);
-      output.push(["Treat XP Left", Math.floor(banks["Treats"].bag)]);
+      output.push(["Iron Left", Math.floor(banks["Iron"].bag).toLocaleString('en-US')]);
+      output.push(["Sand Left", Math.floor(banks["Sand"].bag).toLocaleString('en-US')]);
+      output.push(["Essence Left", Math.floor(banks["Essence"].bag).toLocaleString('en-US')]);
+      output.push(["Rolla Left", Math.floor(banks["Rolla"].bag).toLocaleString('en-US')]);
+      output.push(["Treat XP Left", Math.floor(banks["Treats"].bag).toLocaleString('en-US')]);
 
       return output;
     }
