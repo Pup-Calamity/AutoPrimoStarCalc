@@ -344,7 +344,7 @@
         if (amount <= 0) return 0;
         let b = banks[matName];
         if (b.baseDrop > 0) return amount / (b.baseDrop / 5); 
-        return (amount / (b.startingBag > 0 ? b.startingBag : 1)) * 500; 
+        return (amount / (b.startingBag > 0 ? b.startingBag : 1)) * 5000; 
       }
 
       let generatedExp = activeHours > 0 ? (expPerHour * activeHours) : 0;
