@@ -67,7 +67,7 @@
         <div class="card">
             <h3 style="color: #d32f2f;">Material Realms</h3>
             <div class="table-header"><span style="text-align:left; width:100px;">Realm Tool</span><span>In Bag</span><span>Daily Buys</span></div>
-            <div class="input-group"><label style="width:100px;">Hammers (Iron)</label><input type="number" id="mrHammers" value="212"><input type="number" id="dailyIron" value="4"></div>
+            <div class="input-group"><label style="width:100px;">Hammers (Iron)</label><input type="number" id="mrHammers" value="212"><input type="number" id="" value="4"></div>
             <div class="input-group"><label style="width:100px;">Gloves (Essence)</label><input type="number" id="mrGloves" value="323"><input type="number" id="dailyEssence" value="2"></div>
             <div class="input-group"><label style="width:100px;">Shovels (Sand)</label><input type="number" id="mrShovels" value="144"><input type="number" id="dailySand" value="2"></div>
             <div class="input-group"><label style="width:100px;">Gold Pick (Rolla)</label><input type="number" id="mrPicks" value="101"><input type="number" id="dailyRolla" value="2"></div>
@@ -211,13 +211,13 @@
         totalTreatXP += passiveTreatXP;
 
         // Material Realm (MR) Attempts = On Hand + (Daily Buys * 5 * Days Left)
-        let mrIron = Number(document.getElementById('mrHammers').value) + (Number(document.getElementById('dailyIron').value) * 5 * daysLeft);
+        let mrIron = Number(document.getElementById('mrHammers').value) + (Number(document.getElementById('').value) * 5 * daysLeft);
         let mrEssence = Number(document.getElementById('mrGloves').value) + (Number(document.getElementById('dailyEssence').value) * 5 * daysLeft);
         let mrSand = Number(document.getElementById('mrShovels').value) + (Number(document.getElementById('dailySand').value) * 5 * daysLeft);
         let mrRolla = Number(document.getElementById('mrPicks').value) + (Number(document.getElementById('dailyRolla').value) * 5 * daysLeft);
 
         // Calculate Passive Bags (Starting Bag + (Cart/Hr * Hours Left))
-        let bagIron = Number(document.getElementById('bagIron').value) + (Number(document.getElementById('cartIron').value) * hoursLeft);
+        let bagIron = Number(document.getElementById('bagIron').value) + (Number(document.getElementById('cartIron').value+160) * hoursLeft);
         let bagEssence = Number(document.getElementById('bagEssence').value) + (Number(document.getElementById('cartEssence').value) * hoursLeft);
         let bagSand = Number(document.getElementById('bagSand').value) + (Number(document.getElementById('cartSand').value) * hoursLeft);
         let bagRolla = Number(document.getElementById('bagRolla').value) + (Number(document.getElementById('cartRolla').value) * hoursLeft);
